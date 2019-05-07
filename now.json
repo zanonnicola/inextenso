@@ -2,6 +2,9 @@
     "version": 2,
     "name": "inextenso",
     "builds": [
-        { "src": "*.ts", "use": "@now/node" }
-    ]
+        { "src": "functions/**/*.ts", "use": "@now/node" }
+    ],
+    "routes": [
+        { "src": "/(.*)", "dest": "/functions/$1" }
+      ]
 }
