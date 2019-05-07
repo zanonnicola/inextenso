@@ -1,0 +1,7 @@
+{
+    "version": 2,
+    "name": "inextenso",
+    "builds": [
+        { "src": "*.ts", "use": "@now/node" }
+    ]
+}
