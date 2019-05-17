@@ -1,5 +1,9 @@
 {
   "devDependencies": {
-    "@types/node": "^10.12.18"
+    "@types/node": "^10.12.18",
+    "@types/redis": "2.8.12"
+  },
+  "dependencies": {
+    "redis": "2.8.0"
   }
 }
