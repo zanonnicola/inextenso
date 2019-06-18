@@ -1,5 +1,4 @@
-import { IncomingMessage, ServerResponse } from "http";
-import { parse } from "url";
+import { NowRequest, NowResponse } from '@now/node'
 const redis = require("redis");
 const { promisify } = require("util");
 
@@ -15,7 +14,7 @@ const client = redis.createClient(REDIS_PORT, REDIS_URL, {
 const getAsync = promisify(client.get).bind(client);
 const setAsync = promisify(client.set).bind(client);
 
-export default function(req: IncomingMessage, res: ServerResponse) {
+export default async (req: NowRequest, res: NowResponse) => {
   if (!isDev) {
     client.auth(REDIS_PSW, err => {
       if (err) throw err;
@@ -28,26 +27,16 @@ export default function(req: IncomingMessage, res: ServerResponse) {
     console.log(`Error: ${err}`);
     res.end(`Error: ${err}`);
   });
-  interface Query {
-    id?: string;
-    rate?: string;
+  const { id, rate } = req.query;
+  if (!id) {
+    return res.status(400).send('id is missing from query parameters')
   }
-  async function rate() {
-    const { query }: { query: any } = parse(req.url, true);
-    console.log(query);
-    if (query !== null) {
-      const { id, rate } = query;
-      const response = await setAsync(id, rate);
-      res.end(
-        JSON.stringify({
-          data: {
-            status: response
-          }
-        })
-      );
-    } else {
-      return;
-    }
-  }
-  rate();
+  const response = await setAsync(id, rate);
+  return res.status(200).send(
+    JSON.stringify({
+      data: {
+        status: response
+      }
+    })
+  );
 }
