@@ -11,7 +11,6 @@ const REDIS_PORT = isDev ? 6379 : 14506;
 const client = redis.createClient(REDIS_PORT, REDIS_URL, {
   no_ready_check: isDev ? false : true
 });
-const getAsync = promisify(client.get).bind(client);
 const setAsync = promisify(client.set).bind(client);
 
 export default async (req: NowRequest, res: NowResponse) => {
@@ -25,7 +24,7 @@ export default async (req: NowRequest, res: NowResponse) => {
   });
   client.on("error", err => {
     console.log(`Error: ${err}`);
-    res.end(`Error: ${err}`);
+    res.status(500).send(`Error: ${err}`);
   });
   const { id, rate } = req.query;
   if (!id) {
