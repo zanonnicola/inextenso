@@ -1,6 +1,5 @@
 import { NowRequest, NowResponse } from '@now/node';
 import { RedisClient } from 'redis';
-import { AnyRecord } from 'dns';
 const redis = require("redis");
 const { promisify } = require("util");
 
@@ -17,6 +16,7 @@ interface IPayload {
     [k in Rates]?: number;
   }
 }
+// http POST :3000/rate id==11 rate==5
 
 const client: RedisClient = redis.createClient(REDIS_PORT, REDIS_URL, {
   no_ready_check: isDev ? false : true
@@ -57,9 +57,13 @@ export default async (req: NowRequest, res: NowResponse) => {
     console.log(`Error: ${err}`);
     return res.status(500).send(`Error: ${err}`);
   });
+  if (req.method !== 'POST') {
+    return res.status(404).send('Not found');
+  }
+  
   const { id, rate } = <{ id: string, rate: string }> req.query;
   if (!id || !rate) {
-    return res.status(400).send('id or rate are missing from query parameters')
+    return res.status(400).send('id or rate are missing from query parameters');
   }
   const currentObj = await getAsync(id);
   try {
