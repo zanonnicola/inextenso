@@ -25,6 +25,25 @@ const client: RedisClient = redis.createClient(REDIS_PORT, REDIS_URL, {
 const getAsync = promisify(client.get).bind(client);
 const setAsync = promisify(client.set).bind(client);
 
+const saveData = async (currentObj: string, id: string, rate: number): Promise<string> => {
+  if (currentObj !== null) {
+    const payload: IPayload = JSON.parse(currentObj);
+    if (payload.feedback.hasOwnProperty(rate)) {
+      payload.feedback[rate]++;
+    } else {
+      payload.feedback[rate] = 0;
+    }
+    return await setAsync(id, JSON.stringify(payload));
+  } else {
+    const payload: IPayload = {
+      feedback: {
+        [rate]: 0
+      }
+    }
+    return await setAsync(id, JSON.stringify(payload));
+  }
+}
+
 export default async (req: NowRequest, res: NowResponse) => {
   if (!isDev) {
     client.auth(REDIS_PSW, err => {
@@ -36,36 +55,27 @@ export default async (req: NowRequest, res: NowResponse) => {
   });
   client.on("error", err => {
     console.log(`Error: ${err}`);
-    res.status(500).send(`Error: ${err}`);
+    return res.status(500).send(`Error: ${err}`);
   });
-  const { id, rate } = <{ id: string, rate: string }>req.query;
-  if (!id) {
-    return res.status(400).send('id is missing from query parameters')
+  const { id, rate } = <{ id: string, rate: string }> req.query;
+  if (!id || !rate) {
+    return res.status(400).send('id or rate are missing from query parameters')
   }
-  let response: string;
   const currentObj = await getAsync(id);
-  console.log(currentObj);
-  if (currentObj !== null) {
-    const payload = JSON.parse(currentObj);
-    if (payload.feedback.hasOwnProperty(rate)) {
-      payload.feedback[rate]++;
+  try {
+    const response: string = await saveData(currentObj, id, Number(rate));
+    return res.status(200).send(
+      JSON.stringify({
+        data: {
+          status: response
+        }
+      })
+    );
+  } catch (error) {
+    if (error instanceof Error) {
+      return res.status(500).send(`Error: ${error.message}`);
     } else {
-      payload.feedback[rate] = 0;
+      throw error;
     }
-    response = await setAsync(id, JSON.stringify(payload));
-  } else {
-    const payload: IPayload = {
-      feedback: {
-        [rate]: 0
-      }
-    }
-    response = await setAsync(id, JSON.stringify(payload));
   }
-  return res.status(200).send(
-    JSON.stringify({
-      data: {
-        status: response
-      }
-    })
-  );
 }
