@@ -4,6 +4,16 @@
     "builds": [
         { "src": "functions/**/*.ts", "use": "@now/node" }
     ],
+    "build": {
+        "env": {
+            "REDIS_URL": "@redis_url",
+            "REDIS_PSW": "@redis_psw"
+        }
+    },
+    "env": {
+        "REDIS_URL": "@redis_url",
+        "REDIS_PSW": "@redis_psw"
+    },
     "routes": [
         { "src": "/(.*)", "dest": "/functions/$1" }
       ]
