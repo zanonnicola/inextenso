@@ -57,6 +57,16 @@ const saveData = async (
 };
 
 export default async (req: NowRequest, res: NowResponse) => {
+  const { id, rate } = <{ id: string; rate: string }>req.query;
+  if (!id || !rate) {
+    return res.status(400).send("id or rate are missing from query parameters");
+  }
+  if (req.method !== "POST") {
+    return res.status(404).send("Not found");
+  }
+
+  console.log(req.query, req.body.query, req.method);
+
   if (!isDev) {
     client.auth(REDIS_PSW, err => {
       if (err) throw err;
@@ -69,14 +79,6 @@ export default async (req: NowRequest, res: NowResponse) => {
     console.log(`Error: ${err}`);
     return res.status(500).send(`Error: ${err}`);
   });
-  if (req.method !== "POST") {
-    return res.status(404).send("Not found");
-  }
-
-  const { id, rate } = <{ id: string; rate: string }>req.query;
-  if (!id || !rate) {
-    return res.status(400).send("id or rate are missing from query parameters");
-  }
   const currentObj = await getAsync(id);
   try {
     const response: string = await saveData(currentObj, id, Number(rate), req);
