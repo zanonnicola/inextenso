@@ -11,7 +11,7 @@ const REDIS_PORT = isDev ? 6379 : 14506;
 
 type Rates = "1" | "2" | "3" | "4" | "5";
 interface IPayload {
-  ip?: Set<string>;
+  ip?: string[];
   feedback: { [k in Rates]?: number };
 }
 // http POST :3000/rate id==11 rate==5
@@ -43,11 +43,11 @@ const saveData = async (
     } else {
       payload.feedback[rate] = 0;
     }
-    payload.ip.add(getUserIP(req));
+    payload.ip.push(getUserIP(req));
     return await setAsync(id, JSON.stringify(payload));
   } else {
     const payload: IPayload = {
-      ip: new Set([getUserIP(req)]),
+      ip: [getUserIP(req)],
       feedback: {
         [rate]: 0
       }
