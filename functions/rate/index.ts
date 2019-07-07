@@ -57,6 +57,12 @@ const saveData = async (
 };
 
 export default async (req: NowRequest, res: NowResponse) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
+  res.setHeader("Access-Control-Allow-Methods", "POST");
   const { id, rate } = <{ id: string; rate: string }>req.query;
   if (!id || !rate) {
     return res.status(400).send("id or rate are missing from query parameters");
@@ -65,7 +71,7 @@ export default async (req: NowRequest, res: NowResponse) => {
     return res.status(404).send("Not found");
   }
 
-  console.log(req.query, req.body.query, req.method);
+  console.log(req.query, req.method);
 
   if (!isDev) {
     client.auth(REDIS_PSW, err => {
