@@ -32,7 +32,7 @@ const getUserIP = (req: NowRequest) => {
 
 const saveData = async (
   currentObj: string,
-  id: string,
+  id: number,
   rate: number,
   req?: NowRequest
 ): Promise<string> => {
@@ -57,21 +57,14 @@ const saveData = async (
 };
 
 export default async (req: NowRequest, res: NowResponse) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept"
-  );
-  res.setHeader("Access-Control-Allow-Methods", "POST");
-  const { id, rate } = <{ id: string; rate: string }>req.query;
+  console.log(req.body, req.method);
+  const { id, rate }: { id: number; rate: number } = JSON.parse(req.body);
   if (!id || !rate) {
     return res.status(400).send("id or rate are missing from query parameters");
   }
   if (req.method !== "POST") {
     return res.status(404).send("Not found");
   }
-
-  console.log(req.query, req.method);
 
   if (!isDev) {
     client.auth(REDIS_PSW, err => {
@@ -88,13 +81,12 @@ export default async (req: NowRequest, res: NowResponse) => {
   const currentObj = await getAsync(id);
   try {
     const response: string = await saveData(currentObj, id, Number(rate), req);
-    return res.status(200).send(
-      JSON.stringify({
-        data: {
-          status: response
-        }
-      })
-    );
+    console.log(response, currentObj, id);
+    return res.status(200).json({
+      data: {
+        status: response
+      }
+    });
   } catch (error) {
     if (error instanceof Error) {
       return res.status(500).send(`Error: ${error.message}`);
