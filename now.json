@@ -1,28 +1,32 @@
 {
-    "version": 2,
-    "name": "inextenso",
-    "builds": [{
-        "src": "functions/**/*.ts",
-        "use": "@now/node"
-    }],
-    "build": {
-        "env": {
-            "REDIS_URL": "@redis_url",
-            "REDIS_PSW": "@redis_psw"
-        }
-    },
+  "version": 2,
+  "name": "inextenso",
+  "builds": [
+    {
+      "src": "functions/**/*.ts",
+      "use": "@now/node"
+    }
+  ],
+  "build": {
     "env": {
-        "REDIS_URL": "@redis_url",
-        "REDIS_PSW": "@redis_psw"
-    },
-    "routes": [{
-        "src": "/(.*)",
-        "headers": {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept",
-            "Access-Control-Allow-Methods": "GET, POST",
-            "Access-Control-Allow-Credentials": "true"
-        },
-        "dest": "/functions/$1"
-    }]
+      "REDIS_URL": "@redis_url",
+      "REDIS_PSW": "@redis_psw"
+    }
+  },
+  "env": {
+    "REDIS_URL": "@redis_url",
+    "REDIS_PSW": "@redis_psw"
+  },
+  "routes": [
+    {
+      "src": "/(.*)",
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept",
+        "Access-Control-Allow-Methods": "POST",
+        "Access-Control-Allow-Credentials": "true"
+      },
+      "dest": "/functions/$1"
+    }
+  ]
 }
