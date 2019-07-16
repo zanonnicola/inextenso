@@ -13,6 +13,7 @@ type Rates = "1" | "2" | "3" | "4" | "5";
 interface IPayload {
   ip?: string[];
   feedback: { [k in Rates]?: number };
+  title?: string
 }
 // http POST :3000/rate id==11 rate==5
 
@@ -34,7 +35,8 @@ const saveData = async (
   currentObj: string,
   id: number,
   rate: number,
-  req?: NowRequest
+  req?: NowRequest,
+  title: string = ''
 ): Promise<string> => {
   if (currentObj !== null) {
     const payload: IPayload = JSON.parse(currentObj);
@@ -50,7 +52,8 @@ const saveData = async (
       ip: [getUserIP(req)],
       feedback: {
         [rate]: 0
-      }
+      },
+      title
     };
     return await setAsync(id, JSON.stringify(payload));
   }
@@ -58,7 +61,7 @@ const saveData = async (
 
 export default async (req: NowRequest, res: NowResponse) => {
   console.log(req.body, req.method);
-  const { id, rate }: { id: number; rate: number } = JSON.parse(req.body);
+  const { id, rate, title }: { id: number; rate: number; title: string; } = JSON.parse(req.body);
   if (!id || !rate) {
     return res.status(400).send("id or rate are missing from query parameters");
   }
@@ -80,7 +83,7 @@ export default async (req: NowRequest, res: NowResponse) => {
   });
   const currentObj = await getAsync(id);
   try {
-    const response: string = await saveData(currentObj, id, Number(rate), req);
+    const response: string = await saveData(currentObj, id, Number(rate), req, title);
     console.log(response, currentObj, id);
     return res.status(200).json({
       data: {
