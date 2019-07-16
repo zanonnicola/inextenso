@@ -46,6 +46,7 @@ const saveData = async (
       payload.feedback[rate] = 0;
     }
     payload.ip.push(getUserIP(req));
+    payload.title = title;
     return await setAsync(id, JSON.stringify(payload));
   } else {
     const payload: IPayload = {
