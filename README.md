@@ -6,3 +6,6 @@ Collection of functions for handling specific needs for my personal blog [inexte
 
 - Endpoint: `/rate`
 - Method: `POST`
+
+- Endpoint: `/feedback`
+- Method: `GET` 
